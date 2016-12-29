@@ -45,7 +45,6 @@ NSString* (^add) (NSString*, NSString*) = ^(NSString* txt, NSString * nb) {
         
         last = [txt substringFromIndex:[txt length] - 1];
         
-        
         if([nb isEqualToString:(@"-")] || [nb isEqualToString:(@"x")]
            || [nb isEqualToString:(@"+")] || [nb isEqualToString:(@"÷")]) {
             
@@ -76,7 +75,6 @@ NSString* (^add) (NSString*, NSString*) = ^(NSString* txt, NSString * nb) {
 
 
 NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
-    NSLog(@"début du block ");
     float result = 0;
     
     float a = 0;
@@ -88,38 +86,95 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     NSMutableString * again = [[NSMutableString alloc] init];
     int nbOperator = 0;
     int i;
+    bool reste = NO;
     unsigned long len = [txt length];
     unsigned short index [len];
     bool operatorBefore = NO;
     
-    [txt getCharacters:index range:NSMakeRange(0, len)];
+    int prio = 0;
+    int Nprio = 0;
     
+    [txt getCharacters:index range:NSMakeRange(0, len)];
+     for(i = 0; i < len; i++) {
+         if((index[i] >= '0' && index[i] <= '9' && nbOperator < 2) || index[i] == '.') {
+             
+         }else {
+             if( index[i]  == '-' || (index[i] == '+'  && Nprio == 0 )) {
+                 prio++;
+                 
+             }else {
+                 NSLog(@"index = %c",index[i]);
+                 Nprio++;
+             }
+         }
+     }
+
+     NSLog(@" B prio = %d && Nprio = %d ",prio,Nprio);
+    
+    
+    if(prio > 0 && Nprio == 0 ) {
+         NSLog(@"prio no need ");
+    }else {
+        NSLog(@"need prio");
+    }
+       
+    int cpt = 0;
     for(i = 0; i < len; i++) {
-        if(operatorBefore == NO && (index[i] == '-')  ) {
-            [strA appendFormat:@"%c",index[i]];
-            i++;
-        }
-        if((index[i] >= '0' && index[i] <= '9' && nbOperator < 2) || index[i] == '.') {
-            [strA appendFormat:@"%c",index[i]];
-            operatorBefore = YES;
+        if(prio == 0 ) {
+            NSLog(@" index = %c",index[i]);
+
+            if(reste == YES){
+                [strA appendFormat:@"%c",index[i]];
+            }
+            
+            
+            if(index[i] == '-' || index[i] == '+' || index[i] == '.' || (index[i] >= '0' && index[i] <= '9')) {
+            }else {
+                cpt = i;
+                [operator appendFormat:@"%c",index[i]];
+                NSLog(@"le diviser || multiplier et à la case %d",cpt);
+                cpt--;
+                while(cpt > -1 ) {
+                    if(index[cpt] != '+' && index[cpt] != '-' && reste == NO ) {
+                       [strB appendFormat:@"%c",index[cpt]];
+                       NSLog(@"wtf %c cpt = %d",index[cpt],cpt);
+                    }else {
+                        [strX appendFormat:@"%c",index[cpt]];
+                        NSLog(@"wtc %c cpt = %d",index[cpt],cpt);
+                        reste = YES;
+                    }
+                    cpt--;
+                }
+            }
             
         }else {
-            if(nbOperator >= 1 ) {
-                NSLog(@"entrer");
-                [strX appendFormat:@"%c",index[i]];
-                nbOperator++;
-            }else {
-                [strB appendString:strA];
-                [strA setString:@""];
-                [operator appendFormat:@"%c",index[i]];
-                nbOperator++;
+            if(operatorBefore == NO && (index[i] == '-')  ) {
+                [strA appendFormat:@"%c",index[i]];
+                i++;
+            }
+            if((index[i] >= '0' && index[i] <= '9' && nbOperator < 2) || index[i] == '.') {
+                [strA appendFormat:@"%c",index[i]];
+                operatorBefore = YES;
                 
+            }else {
+                if(nbOperator >= 1 ) {
+                    [strX appendFormat:@"%c",index[i]];
+                    nbOperator++;
+                }else {
+                    [strB appendString:strA];
+                    [strA setString:@""];
+                    [operator appendFormat:@"%c",index[i]];
+                    nbOperator++;
+                    
+                }
             }
         }
         //NSLog(@"a = %@ b = %@ operator = %@ nbOperator = %d strX = %@ index = %c ",strA,strB,operator,nbOperator,strX,index[i]);
-        
     }
     
+    NSLog(@"strX = %@ strB =  %@, operator = %@ strA = %@",strX,strB,operator,strA);
+    
+ 
     a = [strA floatValue];
     b = [strB floatValue];
     
@@ -149,7 +204,7 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     }
     NSLog(@"%@",again);
     return again;
-};
+}; 
 
 // Numbers
 - (IBAction)zero:(id)sender {
@@ -189,7 +244,9 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
 
 // Point & delete
 - (IBAction)point:(id)sender {
-     _op.text = add(_op.text,[sender currentTitle]);
+    if(![_op.text isEqualToString:@""] ) {
+        _op.text = add(_op.text,[sender currentTitle]);
+    }
 }
 - (IBAction)del:(id)sender {
     _op.text = @"";
@@ -201,7 +258,7 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
 - (IBAction)equal:(id)sender {
 
     _res.text = priority(_op.text);
-    _op.text = @"";
+    //_op.text = @"";
     
 }
 - (IBAction)divisor:(id)sender {
