@@ -96,14 +96,13 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     
     [txt getCharacters:index range:NSMakeRange(0, len)];
      for(i = 0; i < len; i++) {
-         if((index[i] >= '0' && index[i] <= '9' && nbOperator < 2) || index[i] == '.') {
+         if((index[i] >= '0' && index[i] <= '9') || index[i] == '.') {
              
          }else {
              if( index[i]  == '-' || (index[i] == '+'  && Nprio == 0 )) {
                  prio++;
-                 
-             }else {
-                 NSLog(@"index = %c",index[i]);
+             }else if(prio > 0) {
+                 NSLog(@"index = %c nprio++",index[i]);
                  Nprio++;
              }
          }
@@ -112,17 +111,17 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
      NSLog(@" B prio = %d && Nprio = %d ",prio,Nprio);
     
     
-    if(prio > 0 && Nprio == 0 ) {
-         NSLog(@"prio no need ");
+    if(prio > 0 && Nprio > 0 ) {
+         NSLog(@"prio  need ");
     }else {
-        NSLog(@"need prio");
+        NSLog(@" no need prio");
     }
        
     int cpt = 0;
     for(i = 0; i < len; i++) {
-        if(prio == 0 ) {
+        if(prio > 0 && Nprio > 0 ) {
             NSLog(@" index = %c",index[i]);
-
+            nbOperator = 2;
             if(reste == YES){
                 [strA appendFormat:@"%c",index[i]];
             }
@@ -133,6 +132,7 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
                 cpt = i;
                 [operator appendFormat:@"%c",index[i]];
                 NSLog(@"le diviser || multiplier et à la case %d",cpt);
+                
                 cpt--;
                 while(cpt > -1 ) {
                     if(index[cpt] != '+' && index[cpt] != '-' && reste == NO ) {
@@ -204,7 +204,7 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     }
     NSLog(@"%@",again);
     return again;
-}; 
+};
 
 // Numbers
 - (IBAction)zero:(id)sender {
