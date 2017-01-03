@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projectPhone/CalculatorViewController.m"
-            timestampString = "504998045.315955"
+            timestampString = "505097409.549924"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "272"
-            endingLineNumber = "272"
+            startingLineNumber = "282"
+            endingLineNumber = "282"
             landmarkName = "@implementation CalculatorViewController"
             landmarkType = "3">
          </BreakpointContent>

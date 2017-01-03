@@ -178,7 +178,6 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
                 cptPriotity++;
             }
         }else {
-            //NSLog(@"index = %c",index[i]);
             
             if(operatorBefore == NO && (index[i] == '-')  ) {
                 [strA appendFormat:@"%c",index[i]];
@@ -202,7 +201,6 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
                 }
             }
         }
-        //NSLog(@"a = %@ b = %@ operator = %@ nbOperator = %d strX = %@ index = %c ",strA,strB,operator,nbOperator,strX,index[i]);
     }
     
 
@@ -223,35 +221,45 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     
     NSLog(@"1 strX = %@ strB =  %@, operator = %@ strA = %@",strX,strB,operator,strA);
     
-    len = [strA length];
-    [strA getCharacters:index range:NSMakeRange(0, len)];
-    for(j = (len-1); j > 0 ; j--) {
-        NSLog(@"index = %c",index[j]);
-        if(index[j] == '-' || index[j] == '+' ) {
-           [strXAfter appendFormat:@"%c",index[j]];
-            x++;
-            break;
-        }
-        [strXAfter appendFormat:@"%c",index[j]];
-    }
-    //[strA deleteCharactersInRange:NSMakeRange((i-x), (len-1))];
+    if(prio > 0 && Nprio > 0) {
+        len = [strA length];
+        [strA getCharacters:index range:NSMakeRange(0, len)];
     
-    NSLog(@"strA = %@ , strXAfter = %@",strA,strXAfter);
+        for(j = 0; j < len ; j++) {
+            NSLog(@"index = %c After = %@",index[j],strXAfter);
+            if(index[j] == '-' || index[j] == '+' || aContainOp == YES) {
+                NSLog(@" je prend index = %c",index[j]);
+                [strXAfter appendFormat:@"%c",index[j]];
+                aContainOp = YES;
+                x++;
+            }
+        }
+        [strA deleteCharactersInRange:NSMakeRange((j-x), (len-1))];
+    
+        NSLog(@"strA = %@ , strXAfter = %@",strA,strXAfter);
+    }
 
     a = [strA floatValue];
     b = [strB floatValue];
     
-
-    
-    if ([operator isEqual:@"-"]) {
-        result = b - a;
-    }else if([operator isEqual:@"+"]) {
-        result = b + a;
-    }else if ([operator  isEqual: @"x"]) {
-        result = b * a;
+    if(isnan(a)) {
+        result = b;
+    }else if(isnan(b)) {
+        result = a;
     }else {
-        result = b / a;
+    
+        if ([operator isEqual:@"-"]) {
+            result = b - a;
+        }else if([operator isEqual:@"+"]) {
+            result = b + a;
+        }else if ([operator  isEqual: @"x"]) {
+            result = b * a;
+        }else {
+            result = b / a;
+        }
+        
     }
+    
     NSLog(@"a = %.2f , b = %.2f operator = %@ result = %.2f nbOp = %d",a,b,operator,result,nbOperator);
     again = [NSMutableString stringWithFormat:@"%g", result];
     if(nbOperator == 1 ) {
@@ -263,6 +271,8 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
             NSLog(@" ici ELSE if again = %@ strX = %@ op = %@  ",again,strX,operator);
             [again setString:(priority(strX))];
         } else {
+            
+            [again appendString:strXAfter];
             [again appendString:strX];
             NSLog(@" ELSE if  again = %@ strX = %@ op = %@  ",again,strX,operator);
             [again setString:(priority(again))];
