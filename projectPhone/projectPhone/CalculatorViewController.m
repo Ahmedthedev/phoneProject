@@ -26,16 +26,8 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-/*
-NSString* (^block) (NSString*, char) = ^(NSString* txt, char nb) {
-    NSMutableString * op = [[NSMutableString alloc] init];
-    [op appendString:txt];
-    [op appendFormat:@"%c", nb];
 
-  return op;
-};
-*/
-
+/** Block who return the reverse string **/
 NSMutableString * (^reverse) (NSMutableString*) = ^(NSMutableString* txt) {
     NSMutableString *reversedString = [NSMutableString stringWithCapacity:[txt length]];
     
@@ -51,6 +43,7 @@ NSMutableString * (^reverse) (NSMutableString*) = ^(NSMutableString* txt) {
 
 };
 
+/** Block who add operator and numbers he cans also delete operator  **/
 NSString* (^add) (NSString*, NSString*) = ^(NSString* txt, NSString * nb) {
     bool way = false;
     unsigned long len = [txt length];
@@ -88,109 +81,122 @@ NSString* (^add) (NSString*, NSString*) = ^(NSString* txt, NSString * nb) {
     return op;
 };
 
+// Block who can know if the calculation got a priority and the number of "x / ÷" also he detects if the first number is a negative number
+NSMutableArray* (^Withpriority) (NSString *,unsigned long) = ^(NSString * txt,unsigned long len) {
+    unsigned short index [len];
+    unsigned int prio = 0;
+    unsigned int Nprio = 0;
+    unsigned int nbPriority = 0;
+    bool interupt = NO;
+    NSMutableArray * myArray = [[NSMutableArray alloc] init];
+    unsigned int i;
+    
+    [txt getCharacters:index range:NSMakeRange(0, len)];
+    for(i = 0; i < len; i++) {
+        if(index[0] == '-' && interupt == NO ) {
+            interupt = YES;
+            continue;
+        }
+        if((index[i] >= '0' && index[i] <= '9') || index[i] == '.') {
 
+        }else {
+            if( index[i]  == '-' || (index[i] == '+'  && Nprio == 0 )) {
+                prio++;
+            }else if(prio > 0) {
+                Nprio++;
+            }
+            if( index[i]  != '-' && index[i] != '+' ) {
+                nbPriority++;
+            }
+        }
+    }
+    NSNumber *number = [NSNumber numberWithInt:nbPriority];
+    [myArray addObject:number];
+    
+    if(prio > 0 && Nprio > 0 ) {
+       [myArray addObject:@YES];
+       [myArray addObject:[NSNumber numberWithBool:interupt]];
+        return myArray;
+    }else {
+        [myArray addObject:@NO];
+        [myArray addObject:[NSNumber numberWithBool:interupt]];
+        return myArray;
+    }
+};
+
+/** Block who do the calculation recursively  **/
 NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     float result = 0;
-    
     float a = 0;
     float b = 0;
     NSMutableString* operator = [[NSMutableString  alloc] init];
     NSMutableString* strA = [[NSMutableString  alloc] init];
     NSMutableString* strB = [[NSMutableString  alloc] init];
-    NSMutableString* strX = [[NSMutableString  alloc] init];
+    NSMutableString* strXBefore = [[NSMutableString  alloc] init];
     NSMutableString* strXAfter = [[NSMutableString  alloc] init];
     NSMutableString * again = [[NSMutableString alloc] init];
     int nbOperator = 0;
     int i;
     int x = 0;
-    int nbPriority = 0;
     int cptPriotity = 1;
     bool reste = NO;
+    NSMutableArray* ifPriorityAndNb = [[NSMutableArray alloc] init];
     unsigned long len = [txt length];
     unsigned long j;
     unsigned short index [len];
     bool operatorBefore = NO;
-    bool interupt = NO;
-    int prio = 0;
-    int Nprio = 0;
     bool aContainOp = NO;
+    NSNumber * nbPriority = [[NSNumber alloc] init];
     
+    ifPriorityAndNb = Withpriority(txt,len);
+    // ifPriorityAndNb[0] = number of "x / ÷"
+    // ifPriorityAndNb[1] = (x == 0) ? it's not a calculation who contain priority : contain priority
+    // ifPriorityAndNb[2] = know if the first number is a negative number
+    nbPriority = [ifPriorityAndNb objectAtIndex:0];
     [txt getCharacters:index range:NSMakeRange(0, len)];
-     for(i = 0; i < len; i++) {
-         if(index[0] == '-' && interupt == NO ) {
-             interupt = YES;
-             continue;
-         }
-         if((index[i] >= '0' && index[i] <= '9') || index[i] == '.') {
-             
-         }else {
-             if( index[i]  == '-' || (index[i] == '+'  && Nprio == 0 )) {
-                 prio++;
-             }else if(prio > 0) {
-                 Nprio++;
-             }
-             
-             if( index[i]  != '-' && index[i] != '+' ) {
-                 nbPriority++;
-             }
-             
-         }
-         NSLog(@"prio = %d , Nprio = %d, index = %c",prio,Nprio,index[i]);
-     }
 
-    if(prio > 0 && Nprio > 0 ) {
-         NSLog(@"calcul -> priorité test");
-    }else {
-        NSLog(@"calcul -> no prio test");
-    }
-    
     int cpt = 0;
-    // reparcours de mon tableau de 2 façon différente en fonction du nb de priorité
+    // iterate through my array for the second time but now I know exactly how he's done
     for(i = 0; i < len; i++) {
-        if(prio > 0 && Nprio > 0 ) {
+        if([[ifPriorityAndNb objectAtIndex:1] boolValue]  == 1 ) {
             
+            // StrA = my number b
             if(reste == YES){
                 [strA appendFormat:@"%c",index[i]];
-               // NSLog(@"strA = %@",strA);
             }
-            
-            
+            // I have done this condition because I do not whant this char
             if(index[i] == '-' || index[i] == '+' || index[i] == '.' || (index[i] >= '0' && index[i] <= '9')) {
-            }else if(nbPriority == cptPriotity){
+                //do nothing
+            }else if( [nbPriority intValue] == cptPriotity){
                 cpt = i;
                 [operator appendFormat:@"%c",index[i]];
-              
-                //NSLog(@"index = %c",index[i]);
                 cpt--;
+                // after get the special signe I iterate my loop in reverse order to get the numbers before
                 while(cpt > -1 ) {
                     if(index[cpt] != '+' && index[cpt] != '-' && reste == NO ) {
                        [strB appendFormat:@"%c",index[cpt]];
-                      // NSLog(@"IF à la case %d  il y a %c strB = %@ strX = %@  l'operateur = %@ ",cpt,index[cpt],strB,strX,operator);
                     }else {
-                        [strX appendFormat:@"%c",index[cpt]];
-                        //NSLog(@"ELSE à la case %d  il y a %c strB = %@  strX = %@  l'operateur = %@ ",cpt,index[cpt],strB,strX,operator);
+                        [strXBefore appendFormat:@"%c",index[cpt]];
                         reste = YES;
                     }
                     cpt--;
                 }
-                
             }else {
                 cptPriotity++;
             }
         }else {
-            
-            if(operatorBefore == NO && (index[i] == '-')  ) {
+            // else the calculation can be do in the normal order
+            if(operatorBefore == 0 && (index[i] == '-')  ) {
                 [strA appendFormat:@"%c",index[i]];
                 i++;
             }
-            
             if((index[i] >= '0' && index[i] <= '9' && nbOperator < 2) || (index[i] == '.' && nbOperator < 2)) {
                 [strA appendFormat:@"%c",index[i]];
                 operatorBefore = YES;
                 
             }else {
                 if(nbOperator >= 1 ) {
-                    [strX appendFormat:@"%c",index[i]];
+                    [strXBefore appendFormat:@"%c",index[i]];
                     nbOperator++;
                 }else {
                     [strB appendString:strA];
@@ -203,42 +209,27 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
         }
     }
     
-
-
-    
-    if(prio > 0 && Nprio > 0 && nbPriority >= 2 ) {
+    if([[ifPriorityAndNb objectAtIndex:1] boolValue] == 1  && [nbPriority intValue] >= 2 ) {
         strB = reverse(strB);
         nbOperator = 2;
-       NSLog(@"avant -> strX = %@ ",strX);
-        strX = reverse(strX);
-        NSLog(@"aprés ->  strX = %@ ",strX);
-        
+        strXBefore = reverse(strXBefore);
     }
-    if(interupt == YES) {
-        strX = reverse(strX);
-        NSLog(@"aprés ->  strX = %@ ",strX);
+    if([[ifPriorityAndNb objectAtIndex:2] boolValue] == 1) {
+        strXBefore = reverse(strXBefore);
     }
     
-    NSLog(@"1 strX = %@ strB =  %@, operator = %@ strA = %@",strX,strB,operator,strA);
-    
-    if(prio > 0 && Nprio > 0) {
+    if([[ifPriorityAndNb objectAtIndex:1] boolValue] == 1 ) {
         len = [strA length];
         [strA getCharacters:index range:NSMakeRange(0, len)];
-    
         for(j = 0; j < len ; j++) {
-            NSLog(@"index = %c After = %@",index[j],strXAfter);
             if(index[j] == '-' || index[j] == '+' || aContainOp == YES) {
-                NSLog(@" je prend index = %c",index[j]);
                 [strXAfter appendFormat:@"%c",index[j]];
                 aContainOp = YES;
                 x++;
             }
         }
         [strA deleteCharactersInRange:NSMakeRange((j-x), (len-1))];
-    
-        NSLog(@"strA = %@ , strXAfter = %@",strA,strXAfter);
     }
-
     a = [strA floatValue];
     b = [strB floatValue];
     
@@ -247,7 +238,6 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
     }else if(isnan(b)) {
         result = a;
     }else {
-    
         if ([operator isEqual:@"-"]) {
             result = b - a;
         }else if([operator isEqual:@"+"]) {
@@ -257,25 +247,18 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
         }else {
             result = b / a;
         }
-        
     }
-    
-    NSLog(@"a = %.2f , b = %.2f operator = %@ result = %.2f nbOp = %d",a,b,operator,result,nbOperator);
     again = [NSMutableString stringWithFormat:@"%g", result];
     if(nbOperator == 1 ) {
-        NSLog(@"IF again = %@ result = %.2f",again,result);
         return again;
     }else {
-        if( prio > 0 && Nprio > 0 && nbOperator >= 1 ) {
-            [strX appendString:again];
-            NSLog(@" ici ELSE if again = %@ strX = %@ op = %@  ",again,strX,operator);
-            [again setString:(priority(strX))];
+        if( [[ifPriorityAndNb objectAtIndex:1] boolValue] == 1  && nbOperator >= 1 ) {
+            [strXBefore appendString:again];
+           [again setString:(priority(strXBefore))];
         } else {
-            
             [again appendString:strXAfter];
-            [again appendString:strX];
-            NSLog(@" ELSE if  again = %@ strX = %@ op = %@  ",again,strX,operator);
-            [again setString:(priority(again))];
+            [again appendString:strXBefore];
+           [again setString:(priority(again))];
         }
     }
     return again;
