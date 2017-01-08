@@ -14,15 +14,15 @@ Open the project on xcode and run it ! I have no executable for me the moment.
 
 all test I have done : 
 
-2 + 2 -> succes 
-2 + 2 x 2 + 2 x 2 -> succes  
-2 + 2 x 2 -> succes 
--2 + 2 -> succes 
-2 x 2 - 2 -> succes 
-2 + 2 x 2 ÷ 2 -> succes 
-2 ÷ 2 + 2 x 2 -> succes 
-2 x 0 -> succes 
-2 ÷ 0 -> succes 
+2 + 2 -> succes <br>
+2 + 2 x 2 + 2 x 2 -> succes  <br>
+2 + 2 x 2 -> succes <br>
+-2 + 2 -> succes <br>
+2 x 2 - 2 -> succes <br>
+2 + 2 x 2 ÷ 2 -> succes <br>
+2 ÷ 2 + 2 x 2 -> succes <br>
+2 x 0 -> succes <br>
+2 ÷ 0 -> succes <br>
 -2 x 2 -> succes 
 
 ## Contributors
