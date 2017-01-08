@@ -173,8 +173,14 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
                 cpt--;
                 // after get the special signe I iterate my loop in reverse order to get the numbers before
                 while(cpt > -1 ) {
-                    if(index[cpt] != '+' && index[cpt] != '-' && reste == NO ) {
-                       [strB appendFormat:@"%c",index[cpt]];
+                    NSLog(@" index = %c",index[cpt]);
+                    if(index[cpt] != '-' && index[cpt] != '+' && reste == NO ) {
+                        if( index[cpt] >= '0' && index[cpt] <= '9') {
+                            [strB appendFormat:@"%c",index[cpt]];
+                        }else {
+                             reste = YES;
+                            cpt++;
+                        }
                     }else {
                         [strXBefore appendFormat:@"%c",index[cpt]];
                         reste = YES;
@@ -249,6 +255,7 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
         }
     }
     again = [NSMutableString stringWithFormat:@"%g", result];
+    NSLog(@"strA = %@ strB = %@ operator = %@ again = %@, strXBefore = %@ result = %g",strA,strB,operator,again,strXBefore,result);
     if(nbOperator == 1 ) {
         return again;
     }else {
@@ -261,6 +268,7 @@ NSString *(^priority) (NSString*) = ^NSString*(NSString* txt) {
            [again setString:(priority(again))];
         }
     }
+    NSLog(@" again = %@",again);
     return again;
 };
 
